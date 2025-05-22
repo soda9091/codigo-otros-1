@@ -1,22 +1,36 @@
+// app.js
 const baseEndpoint = 'https://api.github.com';
 const usersEndpoint = `${baseEndpoint}/users`;
-const $n = document.querySelector('name');
-const $b = document.querySelector('#blog');
-const $l = document.querySelector('.location');
+const elements = {
+    name: document.querySelector('.name'),
+    blog: document.querySelector('.blog'),
+    error: document.querySelector('.error')
+};
 
-function displayUser(username) {
-  $n.textContent = 'cargando...';
-  const response = await fetch(`${usersEndpoint}/${username}`);
-  console.log(data);
-  $n.textContent = '${data.name}';
-  $b.textContent = '${data.blog}';
-  $l.textContent = '${data.location}';
+async function displayUser(username) {
+    try {
+        elements.name.textContent = 'Cargando...';
+        elements.error.textContent = '';
+        
+        const response = await fetch(`${usersEndpoint}/${username}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        elements.name.textContent = data.name || 'Usuario sin nombre registrado';
+        elements.blog.textContent = data.blog || 'El usuario no tiene blog público';
+        elements.blog.href = data.blog || '#';
+
+    } catch (err) {
+        handleError(err);
+    }
 }
 
-function handleError(err) {
-  console.log('OH NO!');
-  console.log(err);
-  n.textContent = `Algo salió mal: ${err}`
+function handleError(error) {
+    console.error('Error en la solicitud:', error);
+    elements.error.textContent = `Error: ${error.message}`;
+    elements.name.textContent = '';
+    elements.blog.textContent = '';
 }
 
-displayUser('stolinski').catch(handleError);
+// Iniciar búsqueda
+displayUser('stolinski');
